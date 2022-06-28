@@ -1,14 +1,35 @@
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
+import swal from "sweetalert";
 
-import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING } from "./types";
+import {
+  GET_ERRORS,
+  SET_CURRENT_USER,
+  USER_LOADING
+} from "./types";
 
 // Register User
 export const registerUser = (userData, history) => dispatch => {
   axios
     .post("/api/users/register", userData)
-    .then(res => history.push("/login"))
+    .then(res => {
+      //get name data from res
+      const {
+        name
+      } = res.data;
+      const {
+        email
+      } = res.data;
+      //swal success register with name
+      swal({
+        title: "Success",
+        text: `${name} with email ${email} has been registered`,
+        icon: "success"
+      });
+      console.log('res', res)
+      history.push("/")
+    })
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
@@ -25,7 +46,9 @@ export const loginUser = userData => dispatch => {
       // Save to localStorage
 
       // Set token to localStorage
-      const { token } = res.data;
+      const {
+        token
+      } = res.data;
       localStorage.setItem("jwtToken", token);
       // Set token to Auth header
       setAuthToken(token);
@@ -33,6 +56,7 @@ export const loginUser = userData => dispatch => {
       const decoded = jwt_decode(token);
       // Set current user
       dispatch(setCurrentUser(decoded));
+      window.location.reload();
     })
     .catch(err =>
       dispatch({
@@ -65,4 +89,6 @@ export const logoutUser = () => dispatch => {
   setAuthToken(false);
   // Set current user to empty object {} which will set isAuthenticated to false
   dispatch(setCurrentUser({}));
+  //
+  window.location.reload();
 };

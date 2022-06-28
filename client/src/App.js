@@ -7,14 +7,17 @@ import { setCurrentUser, logoutUser } from "./actions/authActions";
 import { Provider } from "react-redux";
 import store from "./store";
 
-import Navbar from "./components/layout/Navbar";
+import Navbar from "./components/Navbar";
 import Landing from "./components/layout/Landing";
+import Controlling from "./components/Controlling";
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import PrivateRoute from "./components/private-route/PrivateRoute";
 import Dashboard from "./components/dashboard/Dashboard";
 
 import "./App.css";
+import Footer from "./components/Footer";
+import NavbarGuest from "./components/NavbarGuest";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -35,19 +38,29 @@ if (localStorage.jwtToken) {
     window.location.href = "./login";
   }
 }
+const state = store.getState();
+
+//get auth state from redux store
+const auth = state.auth.isAuthenticated;
+
+console.log("auth", auth);
+
+console.log(store.getState());
 class App extends Component {
   render() {
     return (
       <Provider store={store}>
         <Router>
           <div className="App">
-            <Navbar />
+            {auth === true ? <Navbar /> : <NavbarGuest />}
             <Route exact path="/" component={Landing} />
-            <Route exact path="/register" component={Register} />
-            <Route exact path="/login" component={Login} />
+            {/* <Route exact path="/login" component={Login} /> */}
             <Switch>
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
+              <PrivateRoute exact path="/controlling" component={Controlling} />
+              <PrivateRoute exact path="/register" component={Register} />
             </Switch>
+            <Footer />
           </div>
         </Router>
       </Provider>
